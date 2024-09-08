@@ -18,35 +18,25 @@ class MovieRepo @Inject constructor(val movieApi: MovieApi) {
         return flow {
             emit(Response.Loading())
             try {
-               movieApi.getTrendingMovies().enqueue(object :retrofit.Callback<Movies> {
-                   override fun onResponse(response: retrofit.Response<Movies>?) {
-                       Log.e("response","$response")
+                val response=movieApi.getTrendingMovies()
+                Log.e("response","${response}")
 
-                   }
+                if (response.isSuccessful) {
+                    if(response.body()!=null){
+                        Log.e("response","${response.body()}")
 
-                   override fun onFailure(t: Throwable?) {
-                      Log.e("response","$t")
-                   }
+//                        emit(Response.Success(response.body()!!))
+                    }else{
+                        Log.e("response","null")
 
-               })
-//                Log.e("response","${response}")
+                        emit(Response.Error(NO_DATA_FOUND))
+                    }
 
-//                if (response.isSuccessful) {
-//                    if(response.body()!=null){
-//                        Log.e("response","${response.body()}")
-//
-////                        emit(Response.Success(response.body()!!))
-//                    }else{
-//                        Log.e("response","null")
-//
-//                        emit(Response.Error(NO_DATA_FOUND))
-//                    }
-//
-//                } else {
-//                    Log.e("response","${response.message()}")
-//
-//                    emit(Response.Error("${response.message()}"))
-//                }
+                } else {
+                    Log.e("response","${response.message()}")
+
+                    emit(Response.Error("${response.message()}"))
+                }
             } catch (e: Exception) {
                 Log.e("response","$e")
 

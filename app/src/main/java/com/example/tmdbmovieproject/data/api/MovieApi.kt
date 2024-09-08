@@ -9,8 +9,8 @@ import retrofit2.http.Query
 
 interface MovieApi {
     @GET(Urls.TRENDING)
-    suspend fun getTrendingMovies():Call<Movies>
+    suspend fun getTrendingMovies():retrofit2.Response<Movies>
     @POST(Urls.SEARCH)
-    suspend fun searchMovies(@Query("api_key") apiKey:String=Urls.API_KEY,@Query("query") query:String=Urls.API_KEY):retrofit2.Response<Movies>
+    suspend fun searchMovies(@Query("query") query:String=Urls.API_KEY):retrofit2.Response<Movies>
 
 }
