@@ -2,9 +2,11 @@ package com.example.tmdbmovieproject.data.pojo
 
 import android.icu.text.CaseMap.Title
 import com.google.gson.annotations.SerializedName
-data class Movies(val results:List<Movie>)
+import java.io.Serializable
+
+data class Movies(val page:Int,val results:List<Movie>):Serializable
 data class Movie(
-    val id: String,
+    val id: Long,
     val title: String,
     val overview: String, @SerializedName("backdrop_path") val backdropPath: String,
     @SerializedName("poster_path") val posterPath: String,

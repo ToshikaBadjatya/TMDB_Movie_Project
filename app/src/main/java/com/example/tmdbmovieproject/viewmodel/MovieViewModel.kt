@@ -17,9 +17,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 @HiltViewModel
-class MovieViewModel @Inject constructor(val movieRepo: MovieRepo):ViewModel() {
-    private val moviesResult= MutableStateFlow<Response<Movies>>(Response.IDLE())
-    val _moviesResult=moviesResult.asStateFlow()
+class MovieViewModel @Inject constructor(private val movieRepo: MovieRepo):ViewModel() {
+     val moviesResult= MutableStateFlow<Response<Movies>>(Response.IDLE())
 
     private val searchMoviesResult= MutableStateFlow<Response<Movies>>(Response.IDLE())
     val _searchMoviesResult=searchMoviesResult.asStateFlow()

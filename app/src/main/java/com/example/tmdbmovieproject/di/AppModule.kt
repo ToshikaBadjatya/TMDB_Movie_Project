@@ -27,16 +27,17 @@ class AppModule {
     ): OkHttpClient {
         val headerInterceptor = Interceptor { chain ->
             val original = chain.request()
+            val newUrl=original.url.newBuilder().addQueryParameter("api_key",Urls.API_KEY).build()
             val requestBuilder = original.newBuilder()
-                .header("Content-Type", "application/json")
-                .header("Authorization",Urls.ACCESS_TOKEN)
+//                .header("Content-Type", "application/json")
+                .url(newUrl)
             val request = requestBuilder.build()
             chain.proceed(request)
         }
         return OkHttpClient.Builder()
             .addInterceptor(headerInterceptor).also {
                 it.addInterceptor(
-                    HttpLoggingInterceptor(HttpLoggingInterceptor.Logger.DEFAULT).setLevel(
+                    HttpLoggingInterceptor().setLevel(
                         HttpLoggingInterceptor.Level.BODY
                     ))
             }

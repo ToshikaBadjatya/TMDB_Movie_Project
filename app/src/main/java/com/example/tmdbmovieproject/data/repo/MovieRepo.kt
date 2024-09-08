@@ -6,31 +6,47 @@ import com.example.tmdbmovieproject.data.pojo.Movies
 import com.example.tmdbmovieproject.data.setup.Response
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+
 import javax.inject.Inject
 
 class MovieRepo @Inject constructor(val movieApi: MovieApi) {
    val NO_INTERNET=""
+    val NO_DATA_FOUND="No data found"
     suspend fun getMovies(): Flow<Response<Movies>> {
         Log.e("response","called")
 
         return flow {
             emit(Response.Loading())
             try {
-                val response = movieApi.getTrendingMovies()
-                if (response.isSuccessful) {
-                    if(response.body()!=null){
-                        Log.e("response","${response.body()}")
+               movieApi.getTrendingMovies().enqueue(object :retrofit.Callback<Movies> {
+                   override fun onResponse(response: retrofit.Response<Movies>?) {
+                       Log.e("response","$response")
 
-                        emit(Response.Success(response.body()!!))
-                    }else{
-                        Log.e("response","null")
+                   }
 
-                        emit(Response.Error("No data Found"))
-                    }
+                   override fun onFailure(t: Throwable?) {
+                      Log.e("response","$t")
+                   }
 
-                } else {
-                    emit(Response.Error("${response.message()}"))
-                }
+               })
+//                Log.e("response","${response}")
+
+//                if (response.isSuccessful) {
+//                    if(response.body()!=null){
+//                        Log.e("response","${response.body()}")
+//
+////                        emit(Response.Success(response.body()!!))
+//                    }else{
+//                        Log.e("response","null")
+//
+//                        emit(Response.Error(NO_DATA_FOUND))
+//                    }
+//
+//                } else {
+//                    Log.e("response","${response.message()}")
+//
+//                    emit(Response.Error("${response.message()}"))
+//                }
             } catch (e: Exception) {
                 Log.e("response","$e")
 
@@ -64,3 +80,5 @@ class MovieRepo @Inject constructor(val movieApi: MovieApi) {
 
     }
 }
+
+
