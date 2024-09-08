@@ -9,16 +9,22 @@ import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class MovieRepo @Inject constructor(val movieApi: MovieApi) {
+   val NO_INTERNET=""
     suspend fun getMovies(): Flow<Response<Movies>> {
+        Log.e("response","called")
+
         return flow {
             emit(Response.Loading())
             try {
                 val response = movieApi.getTrendingMovies()
-                Log.e("response","$response")
                 if (response.isSuccessful) {
                     if(response.body()!=null){
+                        Log.e("response","${response.body()}")
+
                         emit(Response.Success(response.body()!!))
                     }else{
+                        Log.e("response","null")
+
                         emit(Response.Error("No data Found"))
                     }
 
@@ -26,6 +32,7 @@ class MovieRepo @Inject constructor(val movieApi: MovieApi) {
                     emit(Response.Error("${response.message()}"))
                 }
             } catch (e: Exception) {
+                Log.e("response","$e")
 
                 emit(Response.Error("${e}"))
 

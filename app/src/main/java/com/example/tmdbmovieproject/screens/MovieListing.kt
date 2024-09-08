@@ -45,12 +45,14 @@ import androidx.navigation.compose.rememberNavController
 import com.example.tmdbmovieproject.data.pojo.Movie
 import com.example.tmdbmovieproject.navigation.Destinations
 import com.example.tmdbmovieproject.viewmodel.MovieViewModel
+import kotlinx.coroutines.delay
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MovieListing(navController: NavHostController,movieViewModel: MovieViewModel) {
     LaunchedEffect(Unit){
+        delay(1000)
         movieViewModel.getMovies()
     }
     val list = remember {
@@ -69,6 +71,7 @@ fun MovieListing(navController: NavHostController,movieViewModel: MovieViewModel
             query.value=it
         }
         showListing(list.value) {
+            movieViewModel.setCurrentMovie(it)
             navController.navigate(Destinations.MovieDetail.path)
         }
     }

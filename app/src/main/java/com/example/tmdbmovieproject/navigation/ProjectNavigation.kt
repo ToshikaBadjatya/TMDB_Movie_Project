@@ -1,5 +1,7 @@
 package com.example.tmdbmovieproject.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -11,6 +13,7 @@ import com.example.tmdbmovieproject.screens.MovieDetail
 import com.example.tmdbmovieproject.screens.MovieListing
 import com.example.tmdbmovieproject.viewmodel.MovieViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ProjectNavigation(navController: NavHostController){
     val movieViewModel:MovieViewModel= hiltViewModel()
