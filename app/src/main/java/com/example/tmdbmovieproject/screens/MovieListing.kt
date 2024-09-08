@@ -53,7 +53,12 @@ import com.example.tmdbmovieproject.navigation.Destinations
 import com.example.tmdbmovieproject.viewmodel.MovieViewModel
 import kotlinx.coroutines.delay
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.getValue
+import coil.ImageLoader
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -66,7 +71,7 @@ fun MovieListing(navController: NavHostController, movieViewModel: MovieViewMode
     }
     val movieResult by movieViewModel._moviesResult.collectAsState()
     val query = remember {
-        mutableStateOf<String?>(null)
+        mutableStateOf<String>("")
     }
     val doSearch=remember {
         mutableStateOf(false)
@@ -90,10 +95,16 @@ fun MovieListing(navController: NavHostController, movieViewModel: MovieViewMode
         }
     }
     LaunchedEffect(doSearch.value) {
-        query.value?.let{
-            Log.e("response","called")
-            movieViewModel.searchMovies(it)
+        if(query.value.isEmpty()){
+            movieViewModel.getMovies()
         }
+        else{
+            movieResult.data?.let {
+                val movies=it.results.filter { it.title.toLowerCase().contains(query.value.toLowerCase()) }
+                movieViewModel.setMovies(movies)
+            }
+        }
+        doSearch.value=false
     }
     BackHandler {
         activity?.finish()
@@ -121,7 +132,7 @@ fun searchComposeable(value: String, valuechange: (String) -> Unit, queryDataCal
             imeAction = ImeAction.Search           // Set the IME action (e.g., Done, Next, Search)
         ),
         keyboardActions = KeyboardActions(
-            onDone = {
+            onSearch = {
                 queryDataCallback.invoke()
             }
         ),
@@ -149,13 +160,25 @@ fun handleResponse(
             }
         }
         is Response.Loading->{
-
+           Loader()
         }
         is Response.Error->{
             Toast.makeText(activity, "${movieResult.message}", Toast.LENGTH_SHORT).show()
 
         }
         else -> {}
+    }
+}
+
+@Composable
+fun Loader() {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(50.dp)
+        )
     }
 }
 

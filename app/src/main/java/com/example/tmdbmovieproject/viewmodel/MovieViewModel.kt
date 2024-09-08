@@ -35,25 +35,25 @@ class MovieViewModel @Inject constructor(private val movieRepo: MovieRepo):ViewM
             }
         }
     }
-    @RequiresApi(Build.VERSION_CODES.O)
-    fun searchMovies(keyWord:String) {
-        viewModelScope.launch {
-            moviesResult.value= Response.IDLE()
-            withContext(Dispatchers.IO) {
-                if(keyWord.isEmpty()){
-                    movieRepo.getMovies().collect { result ->
-                        moviesResult.value = result
-                    }
-                }else{
-                    movieRepo.searchMovies(keyWord).collect { result ->
-                        Log.e("response","called search$result")
-                        moviesResult.value = result
-                    }
-                }
-
-            }
-        }
-    }
+//    @RequiresApi(Build.VERSION_CODES.O)
+//    fun searchMovies(keyWord:String) {
+//        viewModelScope.launch {
+//            moviesResult.value= Response.IDLE()
+//            withContext(Dispatchers.IO) {
+//                if(keyWord.isEmpty()){
+//                    movieRepo.getMovies().collect { result ->
+//                        moviesResult.value = result
+//                    }
+//                }else{
+//                    movieRepo.searchMovies(keyWord).collect { result ->
+//                        Log.e("response","called search$result")
+//                        moviesResult.value = result
+//                    }
+//                }
+//
+//            }
+//        }
+//    }
 
     fun resetCurrentMovie() {
        currentMovie.value=null
@@ -62,4 +62,9 @@ class MovieViewModel @Inject constructor(private val movieRepo: MovieRepo):ViewM
         currentMovie.value=movie
     }
     fun getCurrentMovie()=currentMovie.value
+    fun setMovies(list:List<Movie>){
+        moviesResult.value=Response.Loading()
+        moviesResult.value=Response.Success(Movies(list))
+
+    }
 }
