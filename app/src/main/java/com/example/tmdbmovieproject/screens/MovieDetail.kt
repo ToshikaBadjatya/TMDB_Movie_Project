@@ -23,14 +23,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import com.example.tmdbmovieproject.data.api.Urls
 import com.example.tmdbmovieproject.data.pojo.Movie
 import com.example.tmdbmovieproject.navigation.Destinations
 import com.example.tmdbmovieproject.viewmodel.MovieViewModel
 
 @Composable
 fun MovieDetail(navController: NavHostController, movieViewModel: MovieViewModel) {
-Scaffold(modifier = Modifier.padding(top = 20.dp, start = 16.dp,end=16.dp), topBar = {
- Icon(imageVector = Icons.Filled.ArrowBack , contentDescription = "",Modifier.clickable {
+Scaffold(modifier = Modifier.padding(top = 20.dp,  start = 16.dp,end=16.dp), topBar = {
+ Icon(imageVector = Icons.Filled.ArrowBack , contentDescription = "",modifier=Modifier.padding(bottom = 10.dp).clickable {
 movieViewModel.resetCurrentMovie()
   navController.navigate(Destinations.MovieListing.path)
  })
@@ -49,9 +51,10 @@ fun showMovieDetail(it: Movie, padding: PaddingValues) {
   .fillMaxSize()
   .padding(padding)) {
   Image(
-   imageVector = Icons.Filled.KeyboardArrowUp, "", modifier = Modifier
+   painter = rememberAsyncImagePainter(model = Urls.IMAGE), contentDescription = "", modifier = Modifier
     .height(400.dp)
-    .fillMaxWidth(), contentScale = ContentScale.FillBounds
+    .fillMaxWidth(),
+   contentScale = ContentScale.Crop
   )
   Text(
    "${it.title}", modifier = Modifier

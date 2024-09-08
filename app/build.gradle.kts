@@ -94,6 +94,8 @@ dependencies {
     implementation ("androidx.hilt:hilt-navigation-compose:1.2.0")
     //viewModel
     implementation ("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.5")
-
-
+//loading
+    implementation ("androidx.compose.material:material:1.4.0")
+//coil
+    implementation ("io.coil-kt:coil-compose:2.3.0")
 }

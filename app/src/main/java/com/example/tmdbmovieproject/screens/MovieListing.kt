@@ -6,9 +6,9 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,6 +46,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil.compose.rememberAsyncImagePainter
+import coil.compose.rememberImagePainter
+import coil.request.ImageRequest
+import com.example.tmdbmovieproject.R
+import com.example.tmdbmovieproject.data.api.Urls
 import com.example.tmdbmovieproject.data.pojo.Movie
 import com.example.tmdbmovieproject.data.pojo.Movies
 import com.example.tmdbmovieproject.data.setup.Response
@@ -53,6 +58,9 @@ import com.example.tmdbmovieproject.navigation.Destinations
 import com.example.tmdbmovieproject.viewmodel.MovieViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.StateFlow
+import androidx.compose.foundation.Image
+import coil.compose.AsyncImage
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,11 +73,11 @@ fun MovieListing(navController: NavHostController, movieViewModel: MovieViewMode
     }
     val movieList = remember {
         mutableStateOf<List<Movie>>(
-            emptyList()
-//            listOf(
-//                Movie(2, "cdfcdf", "cdcec", "csdcd", "cddc", "cdfv"),
-//                Movie(1, "cdfcdf", "cdcec", "csdcd", "cddc", "cdfv")
-//            )
+
+            listOf(
+                Movie(2, "cdfcdf", "cdcec", "csdcd", "cddc", "cdfv"),
+                Movie(1, "cdfcdf", "cdcec", "csdcd", "cddc", "cdfv")
+            )
         )
     }
     val query = remember {
@@ -117,18 +125,15 @@ fun MovieListing(navController: NavHostController, movieViewModel: MovieViewMode
                 navController.navigate(Destinations.MovieDetail.path)
             }
         }
-        LaunchedEffect(loadState) {
-            if (loadState.value) {
+        if (loadState.value) {
 
-            }
         }
-        LaunchedEffect(doSearch.value) {
-          query.value?.let{
-              Log.e("response","called")
-              movieViewModel.searchMovies(it)
-          }
+    }
+    LaunchedEffect(doSearch.value) {
+        query.value?.let{
+            Log.e("response","called")
+            movieViewModel.searchMovies(it)
         }
-
     }
     BackHandler {
         activity?.finish()
@@ -181,6 +186,7 @@ fun showListing(list: List<Movie>, onItemClick: (Movie) -> Unit) {
 
 @Composable
 fun movieItem(movie: Movie) {
+
     Card(
         modifier = Modifier
             .fillMaxSize()
@@ -189,10 +195,12 @@ fun movieItem(movie: Movie) {
         elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
     ) {
         Column() {
+
             Image(
-                imageVector = Icons.Filled.KeyboardArrowUp, "", modifier = Modifier
+               painter = rememberAsyncImagePainter(model = Urls.IMAGE), contentDescription = "", modifier = Modifier
                     .height(200.dp)
-                    .fillMaxWidth(), contentScale = ContentScale.FillBounds
+                    .fillMaxWidth(),
+                contentScale = ContentScale.Crop
             )
             Text(
                 movie.title, modifier = Modifier
@@ -248,4 +256,5 @@ fun handleResponse(
     }
 
 }
+
 
