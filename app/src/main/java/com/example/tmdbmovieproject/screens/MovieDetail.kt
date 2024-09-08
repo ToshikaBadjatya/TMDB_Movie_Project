@@ -51,7 +51,7 @@ fun showMovieDetail(it: Movie, padding: PaddingValues) {
   .fillMaxSize()
   .padding(padding)) {
   Image(
-   painter = rememberAsyncImagePainter(model = Urls.IMAGE), contentDescription = "", modifier = Modifier
+   painter = rememberAsyncImagePainter(model = "${Urls.IMAGE}${it.posterPath}"), contentDescription = "", modifier = Modifier
     .height(400.dp)
     .fillMaxWidth(),
    contentScale = ContentScale.Crop

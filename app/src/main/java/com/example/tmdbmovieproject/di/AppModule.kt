@@ -29,7 +29,7 @@ class AppModule {
             val original = chain.request()
             val newUrl=original.url.newBuilder().addQueryParameter("api_key",Urls.API_KEY).build()
             val requestBuilder = original.newBuilder()
-//                .header("Content-Type", "application/json")
+                .header("Content-Type", "application/json")
                 .url(newUrl)
             val request = requestBuilder.build()
             chain.proceed(request)

@@ -4,7 +4,7 @@ import android.icu.text.CaseMap.Title
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
-data class Movies(val page:Int,val results:List<Movie>):Serializable
+data class Movies(val results:List<Movie>):Serializable
 data class Movie(
     val id: Long,
     val title: String,

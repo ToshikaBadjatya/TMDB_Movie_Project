@@ -8,7 +8,6 @@ import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -22,7 +21,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -47,9 +45,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
-import coil.compose.rememberImagePainter
-import coil.request.ImageRequest
-import com.example.tmdbmovieproject.R
 import com.example.tmdbmovieproject.data.api.Urls
 import com.example.tmdbmovieproject.data.pojo.Movie
 import com.example.tmdbmovieproject.data.pojo.Movies
@@ -57,9 +52,8 @@ import com.example.tmdbmovieproject.data.setup.Response
 import com.example.tmdbmovieproject.navigation.Destinations
 import com.example.tmdbmovieproject.viewmodel.MovieViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.StateFlow
 import androidx.compose.foundation.Image
-import coil.compose.AsyncImage
+import androidx.compose.runtime.getValue
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -67,19 +61,10 @@ import coil.compose.AsyncImage
 @Composable
 fun MovieListing(navController: NavHostController, movieViewModel: MovieViewModel) {
     val activity = LocalContext.current as? Activity
-
     val loadState = remember {
         mutableStateOf(false)
     }
-    val movieList = remember {
-        mutableStateOf<List<Movie>>(
-
-            listOf(
-                Movie(2, "cdfcdf", "cdcec", "csdcd", "cddc", "cdfv"),
-                Movie(1, "cdfcdf", "cdcec", "csdcd", "cddc", "cdfv")
-            )
-        )
-    }
+    val movieResult by movieViewModel._moviesResult.collectAsState()
     val query = remember {
         mutableStateOf<String?>(null)
     }
@@ -87,28 +72,6 @@ fun MovieListing(navController: NavHostController, movieViewModel: MovieViewMode
         mutableStateOf(false)
     }
     fetchData(movieViewModel)
-    val loadingCallback: (Boolean) -> Unit = {
-        loadState.value = it
-    }
-    val successCallback: (List<Movie>) -> Unit = {
-        movieList.value = it
-    }
-    val errorCallback: (String) -> Unit = {
-        Toast.makeText(activity, "$it", Toast.LENGTH_SHORT).show()
-    }
-    handleResponse(
-        movieResult = movieViewModel._moviesResult,
-        loadingCallback = loadingCallback,
-        successCallback = successCallback,
-        errorCallback = errorCallback
-    )
-    handleResponse(
-        movieResult = movieViewModel._searchMoviesResult,
-        loadingCallback = loadingCallback,
-        successCallback = successCallback,
-        errorCallback = errorCallback
-    )
-
     Surface {
         Column(
             modifier = Modifier
@@ -120,10 +83,7 @@ fun MovieListing(navController: NavHostController, movieViewModel: MovieViewMode
             },{
                 doSearch.value=true
             })
-            showListing(movieList.value) {
-                movieViewModel.setCurrentMovie(it)
-                navController.navigate(Destinations.MovieDetail.path)
-            }
+            handleResponse(movieResult,movieViewModel,navController)
         }
         if (loadState.value) {
 
@@ -172,6 +132,33 @@ fun searchComposeable(value: String, valuechange: (String) -> Unit, queryDataCal
         })
 
 }
+@Composable
+fun handleResponse(
+    movieResult: Response<Movies>,
+    movieViewModel: MovieViewModel,
+    navController: NavHostController
+) {
+    val activity = LocalContext.current as? Activity
+
+    when(movieResult){
+        is Response.Success->{
+            Log.e("response","${movieResult.data!!.results}")
+            showListing(movieResult.data!!.results) {
+                movieViewModel.setCurrentMovie(it)
+                navController.navigate(Destinations.MovieDetail.path)
+            }
+        }
+        is Response.Loading->{
+
+        }
+        is Response.Error->{
+            Toast.makeText(activity, "${movieResult.message}", Toast.LENGTH_SHORT).show()
+
+        }
+        else -> {}
+    }
+}
+
 
 @Composable
 fun showListing(list: List<Movie>, onItemClick: (Movie) -> Unit) {
@@ -197,13 +184,14 @@ fun movieItem(movie: Movie) {
         Column() {
 
             Image(
-               painter = rememberAsyncImagePainter(model = Urls.IMAGE), contentDescription = "", modifier = Modifier
+               painter = rememberAsyncImagePainter(model = "${Urls.IMAGE}${movie.posterPath}"), contentDescription = "", modifier = Modifier
                     .height(200.dp)
                     .fillMaxWidth(),
                 contentScale = ContentScale.Crop
             )
             Text(
                 movie.title, modifier = Modifier
+                    .padding(start = 6.dp)
                     .background(Color.White)
                     .align(Alignment.CenterHorizontally)
                     .padding(vertical = 10.dp)
@@ -224,37 +212,5 @@ fun fetchData(movieViewModel: MovieViewModel) {
 
 
 
-
-
-@Composable
-fun handleResponse(
-    movieResult: StateFlow<Response<Movies>>,
-    loadingCallback: (Boolean) -> Unit,
-    successCallback: (movies: List<Movie>) -> Unit,
-    errorCallback: (String) -> Unit
-) {
-    val movieList = movieResult.collectAsState()
-    val response = movieList.value
-    when (response) {
-        is Response.Loading -> {
-            loadingCallback.invoke(true)
-        }
-
-        is Response.Success -> {
-            loadingCallback.invoke(false)
-            successCallback.invoke(response.data!!.results)
-
-        }
-
-        is Response.Error -> {
-            loadingCallback.invoke(false)
-            errorCallback.invoke(response.message?:"")
-
-        }
-
-        is Response.IDLE -> {}
-    }
-
-}
 
 

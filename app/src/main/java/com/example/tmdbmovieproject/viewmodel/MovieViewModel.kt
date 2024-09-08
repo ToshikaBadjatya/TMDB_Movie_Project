@@ -12,6 +12,7 @@ import com.example.tmdbmovieproject.data.setup.Response
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -20,9 +21,6 @@ import javax.inject.Inject
 class MovieViewModel @Inject constructor(private val movieRepo: MovieRepo):ViewModel() {
     private val moviesResult= MutableStateFlow<Response<Movies>>(Response.IDLE())
     val _moviesResult=moviesResult.asStateFlow()
-
-    private val searchMoviesResult= MutableStateFlow<Response<Movies>>(Response.IDLE())
-    val _searchMoviesResult=searchMoviesResult.asStateFlow()
     private val currentMovie= MutableStateFlow<Movie?>(null)
     @RequiresApi(Build.VERSION_CODES.O)
     fun getMovies() {
@@ -40,11 +38,19 @@ class MovieViewModel @Inject constructor(private val movieRepo: MovieRepo):ViewM
     @RequiresApi(Build.VERSION_CODES.O)
     fun searchMovies(keyWord:String) {
         viewModelScope.launch {
-            searchMoviesResult.value= Response.IDLE()
+            moviesResult.value= Response.IDLE()
             withContext(Dispatchers.IO) {
-                movieRepo.searchMovies(keyWord).collect { result ->
-                    searchMoviesResult.value = result
+                if(keyWord.isEmpty()){
+                    movieRepo.getMovies().collect { result ->
+                        moviesResult.value = result
+                    }
+                }else{
+                    movieRepo.searchMovies(keyWord).collect { result ->
+                        Log.e("response","called search$result")
+                        moviesResult.value = result
+                    }
                 }
+
             }
         }
     }
