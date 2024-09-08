@@ -2,6 +2,7 @@ package com.example.tmdbmovieproject.screens
 
 import android.app.Activity
 import android.os.Build
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.annotation.RequiresApi
@@ -64,14 +65,18 @@ fun MovieListing(navController: NavHostController, movieViewModel: MovieViewMode
     }
     val movieList = remember {
         mutableStateOf<List<Movie>>(
-            listOf(
-                Movie(2, "cdfcdf", "cdcec", "csdcd", "cddc", "cdfv"),
-                Movie(1, "cdfcdf", "cdcec", "csdcd", "cddc", "cdfv")
-            )
+            emptyList()
+//            listOf(
+//                Movie(2, "cdfcdf", "cdcec", "csdcd", "cddc", "cdfv"),
+//                Movie(1, "cdfcdf", "cdcec", "csdcd", "cddc", "cdfv")
+//            )
         )
     }
     val query = remember {
         mutableStateOf<String?>(null)
+    }
+    val doSearch=remember {
+        mutableStateOf(false)
     }
     fetchData(movieViewModel)
     val loadingCallback: (Boolean) -> Unit = {
@@ -81,7 +86,7 @@ fun MovieListing(navController: NavHostController, movieViewModel: MovieViewMode
         movieList.value = it
     }
     val errorCallback: (String) -> Unit = {
-        Toast.makeText(activity, "it", Toast.LENGTH_SHORT).show()
+        Toast.makeText(activity, "$it", Toast.LENGTH_SHORT).show()
     }
     handleResponse(
         movieResult = movieViewModel._moviesResult,
@@ -105,6 +110,7 @@ fun MovieListing(navController: NavHostController, movieViewModel: MovieViewMode
             searchComposeable(query.value?:"",{
                 query.value = it
             },{
+                doSearch.value=true
             })
             showListing(movieList.value) {
                 movieViewModel.setCurrentMovie(it)
@@ -116,8 +122,9 @@ fun MovieListing(navController: NavHostController, movieViewModel: MovieViewMode
 
             }
         }
-        LaunchedEffect(query.value) {
+        LaunchedEffect(doSearch.value) {
           query.value?.let{
+              Log.e("response","called")
               movieViewModel.searchMovies(it)
           }
         }
@@ -233,6 +240,7 @@ fun handleResponse(
 
         is Response.Error -> {
             loadingCallback.invoke(false)
+            errorCallback.invoke(response.message?:"")
 
         }
 
